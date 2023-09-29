@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <script src='../fullcalendar-6.1.8/dist/index.global.js'></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- bootstrap 4 -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+
+
+
+
+    <title>SB Admin 2 - Dashboard</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+            href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+            rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="css/sb-admin-2.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top" >
+<input type="hidden" class="my_id2" name="my_id2" id="my_id2"  th:value="${my_id}">
+
+
+
+<!-- Page Wrapper -->
+<div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark">
+
+        <!-- Sidebar - Brand -->
+
+            <div>
+                <img th:if="${base64Image}" th:src="'data:image/jpeg;base64,' + ${base64Image}" width="230" height="150">
+                <img th:unless="${base64Image}" src="../img/user사진.jpg" width="230" height="150">
+            </div>
+            <button type="button" onclick="Logout()">ログアウト</button>
+
+
+        <!-- Divider -->
+        <hr class="sidebar-divider my-0">
+
+        <!-- login / join-->
+        <th:block th:unless="${session.user}">
+        <li class="nav-item active">
+            <button type="button" onclick="singup()">회원가입</button>
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Interface
+            </div>
+        </li>
+        </th:block>
+
+            <!-- Nav Item - Pages Collapse Menu -->
+        <li class="nav-item">
+            <a class="nav-link collapsed" th:href="@{'/modf?user_id=' + ${my_id}}"
+               aria-expanded="true" aria-controls="collapseTwo">
+                <i class="fas fa-fw fa-cog"></i>
+                <span>個人情報修正</span>
+            </a>
+        </li>
+
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Heading -->
+        <div class="sidebar-heading">
+            Addons
+        </div>
+
+        <!-- Nav Item - Pages Collapse Menu -->
+        <li class="nav-item">
+            <a class="nav-link" >
+                <i class="fas fa-fw fa-folder"></i>
+                <span>参加しているグループ</span>
+            </a>
+
+        </li>
+
+        <!-- Nav Item - Charts -->
+
+        <div th:each = "teamname : ${team}">
+
+            <input type="hidden" class="teamno" name="teamno" id="teamno" th:value="${teamname.getTeamno()}">
+            <input type="hidden" class="teamname" name="teamname" id="teamname" th:value="${teamname.getTeamname()}">
+            <input type="hidden" class="my_id" name="my_id" id="my_id" th:value="${my_id}">
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="teamwork(this)">
+
+                <span th:text="${teamname.getTeamname()}"></span></a>
+
+            </li>
+        </div>
+
+
+        <!-- Divider -->
+        <hr class="sidebar-divider d-none d-md-block">
+
+        <!-- Sidebar Toggler (Sidebar) -->
+        <div class="text-center d-none d-md-inline">
+            <button class="rounded-circle border-0" onclick="gaddition()">グループ追加</button>
+        </div>
+
+
+
+    </ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+        <!-- Main Content -->
+        <div id="content">
+
+            <!-- Topbar -->
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                <button type="button" onclick="teamout()">出る</button>
+            </nav>
+            <!-- End of Topbar -->
+
+            <!-- Begin Page Content -->
+            <div class="container-fluid">
+
+                <!-- Page Heading -->
+                <div class="container min-vh-100 justify-content-center">
+                    <div id='calendar'>
+
+                    </div>
+
+
+                </div>
+                <!-- modal 추가 -->
+                <div class="modal fade" id="calendarModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">日程を入力してください。</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+
+
+                            <div class="modal-body">
+                                <div class="form-group" id="form-group">
+                                    <div>
+                                    <label >メンバーリスト</label>
+                                    <select name="memberlist" id="memberlist" >
+                                    </select>
+                                    </div>
+                                    <label  class="col-form-label">業務内容</label>
+                                    <input type="text" class="form-control" id="calendar_content" name="calendar_content">
+                                    <label  class="col-form-label">Start</label>
+                                    <input type="date" class="form-control" id="calendar_start_date" name="calendar_start_date">
+                                    <label  class="col-form-label">End</label>
+                                    <input type="date" class="form-control" id="calendar_end_date" name="calendar_end_date">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-warning" id="addCalendar">追加</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                                        id="sprintSettingModalClose">キャンセル</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <footer class="sticky-footer bg-white">
+            <div class="container my-auto">
+                <div class="copyright text-center my-auto">
+                    <span>Copyright &copy; Your Website 2021</span>
+                </div>
+            </div>
+        </footer>
+
+
+    </div>
+
+
+</div>
+
+
+
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+
+
+<!-- Bootstrap core JavaScript-->
+<script src="vendor/jquery/jquery.min.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<!-- Core plugin JavaScript-->
+<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+<!-- Custom scripts for all pages-->
+<script src="js/sb-admin-2.min.js"></script>
+
+<!-- Page level plugins -->
+<script src="vendor/chart.js/Chart.min.js"></script>
+
+<!-- Page level custom scripts -->
+<script src="js/demo/chart-area-demo.js"></script>
+<script src="js/demo/chart-pie-demo.js"></script>
+
+
+<script>
+    function teamout(){
+        var user_id = document.getElementById('my_id2').value;
+        var teamno = document.getElementById('teamno').value;
+
+        let data = JSON.stringify({ // 메시지와 아이디, 시간 정보
+            user_id: user_id,
+            teamno: teamno,
+        });
+
+        $.ajax({
+            type: 'POST',
+            url: '/teamdle',
+            contentType: 'application/json',
+            data: data,
+            success: function(response) {
+
+                var user_id = response.user_id;
+                var user_pass = response.user_pass;
+
+                window.location.href = "/login?id="+user_id;
+            },
+            error: function(error) {
+                console.error('Error:', error);
+            }
+        });
+
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            headerToolbar: {
+                locale : "jp",
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth'
+            },
+            navLinks: true,
+            businessHours: true,
+            editable: true,
+            selectable: true,
+            events: [
+
+                {
+                    title: 'Business Lunch',
+                    start: '2023-09-12T13:00:00',
+                    constraint: 'businessHours'
+                },
+                {
+                    title: 'Meeting',
+                    start: '2023-09-13T11:00:00',
+                    constraint: 'availableForMeeting',
+                    color: '#257e4a'
+                },
+                {
+                    title: 'Conference',
+                    start: '2023-09-18',
+                    end: '2023-09-20'
+                }
+
+
+
+
+            ]
+    });
+
+        calendar.render();
+    });
+    function gaddition(){
+
+        var gpop = "width=650px, height=550px, top=300, left=300, scrollbars=yes";
+        var gpopUrl = "/gpop"
+        window.open(gpopUrl, 'pop', gpop);
+    }
+
+    function Logout(){
+        location.href="/logout";
+    }
+    function teamwork(item) {
+        var teamname = $(item).closest('div').find('.teamname').val();
+        var teamno = $(item).closest('div').find('.teamno').val();
+        var my_id = $(item).closest('div').find('.my_id').val();
+
+        $.ajax({
+            url: "/newcalendar",
+            type: "POST",
+            data: JSON.stringify({ teamname: teamname, teamno: teamno }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                var memberlist = data.memberlist;
+                var memberwork = data.memberwork;
+                console.log(memberlist);
+                console.log(memberwork);
+                var memberselect = document.getElementById('memberlist');
+                memberselect.innerHTML = '';
+                var teamno;
+                var user_id;
+                memberlist.forEach(function(member) {
+                    var option = document.createElement('option');
+                    option.value = member.nikname;
+                    option.textContent = member.nikname;
+                    memberselect.appendChild(option);
+                    teamno = member.teamno;
+                    user_id = member.user_id;
+                });
+
+                var events = memberwork.map(function(work) {
+                    return {
+                        title: work.work,
+                        start: work.start_date,
+                        end: work.end_date
+                    };
+                });
+
+
+                    // FullCalendar의 이벤트 업데이트 부분
+                var calendarEl = document.getElementById('calendar');
+                var calendar = new FullCalendar.Calendar(calendarEl, {
+                    headerToolbar: {
+                        locale: "jp",
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth'
+                    },
+                    navLinks: true,
+                    businessHours: true,
+                    editable: true,
+                    selectable: true,
+
+                    events: events,
+                    eventClick:  function(info) {
+                        var clickedStartDate = info.event.start;
+                        console.log(clickedStartDate);
+                        var day = clickedStartDate.getDate().toString().padStart(2, '0');
+                        var month = (clickedStartDate.getMonth() + 1).toString().padStart(2, '0');
+                        var year = (clickedStartDate.getFullYear() % 100).toString().padStart(2, '0');
+
+                        var formattedDate = year + '/' + month + '/' + day;
+
+                        // 여기에서 다른 창으로 이동하는 코드를 작성
+
+                        window.location.href = "/teamindex?Startdate=" + formattedDate + "&teamno=" + teamno + "&my_id=" + my_id;
+                    }
+                    ,
+
+                    headerToolbar: {
+                        center: 'addEventButton' // headerToolbar에 버튼을 추가
+                    }, customButtons: {
+                        addEventButton: { // 추가한 버튼 설정
+                            text : "日程追加",  // 버튼 내용
+                            click : function(){ // 버튼 클릭 시 이벤트 추가
+                                $("#calendarModal").modal("show"); // modal 나타내기
+
+                                $("#addCalendar").on("click",function(){  // modal의 추가 버튼 클릭 시
+                                    var content = $("#calendar_content").val();
+                                    var start_date = $("#calendar_start_date").val();
+                                    var end_date = $("#calendar_end_date").val();
+                                    var member = $("#memberlist").val();
+
+                                    //내용 입력 여부 확인
+                                    if(content == null || content == ""){
+                                        alert("内容を入力してください。");
+                                    }else if(start_date == "" || end_date ==""){
+                                        alert("日を入力してください。");
+                                    }else if(new Date(end_date)- new Date(start_date) < 0){ // date 타입으로 변경 후 확인
+                                        alert("EndがStartより前です。");
+                                    }else{ // 정상적인 입력 시
+                                        var obj = {
+                                            "member" : member,
+                                            "title" : content,
+                                            "start" : start_date,
+                                            "end" : end_date,
+                                            "teamno" : teamno,
+                                            "user_id" : user_id
+                                        }//전송할 객체 생성
+
+
+                                        addEventToServer(obj)
+                                    }
+                                });
+                            }
+                        }
+                    },
+                    editable: true, // false로 변경 시 draggable 작동 x
+                    displayEventTime: false // 시간 표시 x
+
+                });
+
+                calendar.render();
+            }
+        });
+    }
+
+    function addEventToServer(obj) {
+        $.ajax({
+            url: "/workinsert",
+            type: "POST",
+            data: JSON.stringify(obj),
+            contentType: "application/json; charset=utf-8",
+            dataType: "text",
+            success: function (response) {
+
+
+                $("#calendar_content").val("");
+                $("#calendar_start_date").val("");
+                $("#calendar_end_date").val("");
+
+                $("#calendarModal").modal("hide")
+            },
+            error: function (error) {
+                console.error(error);
+            }
+        });
+
+    }
+
+</script>
+<style>
+    #calendar {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+</style>
+</body>
+
+
+</html>

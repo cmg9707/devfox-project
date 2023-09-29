@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>팝업창</title>
+
+</head>
+<body>
+    <h1>グループ追加</h1>
+
+    <div>
+        <div>
+            <table>
+                <input type="hidden" name="myemail" id="myemail" th:value="${user.getEmail()}">
+                <tr>
+                    <th>グループ名</th>
+                    <td>
+                        <input type="text" id="teamname" name="teamname">
+                    </td>
+                </tr>
+                <tr>
+                    <th>Email</th>
+                    <td><input type="text" id="email">
+                        <button id="cbut" class="btn btn-default" type="button" onclick="eadd()" >ユーザー追加</button>
+                    </td>
+
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div>
+        <div class="dadd" id="memberList">
+
+        </div>
+        <div>
+            <button id="comok" onclick="send()" type="button" >登録</button>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        function eadd() {
+
+            var email = document.getElementById("email").value;
+            var memberList = document.getElementById("memberList");
+
+            if (email.trim() === "") {
+                alert("Emailを入力してください。");
+                return;
+            }
+            // 이미 추가된 멤버인지 확인
+            var isMemberExists = Array.from(memberList.children).some(function(element) {
+                return element.textContent.includes(email);
+            });
+
+            if (isMemberExists) {
+                alert("もう追加したユーザーです。");
+                return;
+            }
+
+
+            // 새로운 멤버 엘리먼트를 생성
+            var newMemberElement = document.createElement("div");
+
+            // 멤버 정보를 포함하는 HTML을 생성
+            newMemberElement.innerHTML = `
+                <span>${email}</span>
+                <button class="btn btn-danger" onclick="removeMember(this)">삭제</button>
+            `;
+
+            // 생성한 멤버 엘리먼트를 멤버 리스트에 추가
+            memberList.appendChild(newMemberElement);
+
+            document.getElementById("email").value = "";
+        }
+
+        function removeMember(button) {
+            var memberElement = button.parentElement;
+            memberElement.remove();
+        }
+
+        function send(){
+            var teamname = document.getElementById("teamname").value;
+            var emailList = Array.from(document.querySelectorAll("#memberList span")).map(function(element) {
+                return element.textContent;
+            });
+            var myemail = document.getElementById("myemail").value;
+
+            if (teamname.trim() === "") {
+                alert("グループ名を入力してください。");
+                document.getElementById("teamname").focus();
+                return;
+            }
+            if (emailList.length === 0) {
+                alert("ユーザーを追加してください。");
+                document.getElementById("email").focus();
+                return;
+            }
+
+            $.ajax({
+                url: "/gpopok",
+                type: "POST",
+                data: JSON.stringify({ teamname: teamname, emaillist: emailList, myemail: myemail }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "text",
+                success: function(data) {
+                    console.log(data)
+                    alert("完了しました。")
+                    CloseWindow()
+
+                },
+
+            });
+
+
+
+        }
+        function CloseWindow()
+
+        {
+
+            window.opener.location.reload();    //부모창 reload
+
+            window.close();
+
+        }
+    </script>
+</body>
+</html>

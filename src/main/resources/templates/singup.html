@@ -1,0 +1,245 @@
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- Bootstrap ! -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+    <!-- Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link rel="stylesheet" href="/resources/css/styles.css">
+
+    <title>Insert title here</title>
+</head>
+<body>
+<!-- Navigation-->
+<nav class="navbar navbar-light bg-light static-top">
+    <div class="container">
+        <div >
+            <a href="/" style="margin: 10px;">로그인</a>
+            <a href="singup">새로고침</a>
+        </div>
+    </div>
+</nav>
+<!-- form -->
+<div class="container-sm" >
+    <div class="input-form-backgroud row">
+        <div class="input-form col-md-12 mx-auto">
+            <h4 class="mb-3" style="text-align: center;">会員登録</h4>
+            <form class="join" name="join" action="/singup" method="post">
+                <div class="row d-flex justify-content-center">
+                    <div class="col-md-5 mb-3" id="user_id1">
+                        <label for="user_id">ユーザーID</label>
+                        <input type="text" class="form-control" id="user_id" maxlength="8" name="user_id"
+                               placeholder="ユーザーIDを入力してください" value="" >
+                        <span class="user-id-error-message" style="color: red;">ユーザーIDを入力してください.</span>
+
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center">
+                    <div class="col-md-5 mb-3">
+                        <label for="nikname">Nickname</label>
+                        <input type="text" maxlength="20"
+                               class="form-control" id="nikname" name ="nikname" placeholder="Nicknameを入力してください" value="">
+                        <span class="user-name-error-message" style="color: red;">Nicknameを入力してください。</span>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center">
+                    <div class="col-md-5 mb-3">
+                        <label for="user_pass">パスワード</label>
+                        <input type="password"class="form-control" size="18" id="user_pass" name="user_pass" placeholder="パスワードを入力してください"value=""
+                               maxlength="18" >
+                        <span class="user-pass-error-message" style="color: red;">パスワードを入力してください。</span>
+                    </div>
+                </div>
+
+                <div class="row d-flex justify-content-center">
+                    <div class="col-md-5 mb-2">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" value=""
+                                       placeholder="abc1@gmail.com / Gmailだけ"  >
+                            </div>
+                            <div class="col-md-4" style="margin-top: 2%;">
+                                <button class="btn btn-primary btn-lg btn-block my-2" id="mailbut" name="mailbut" value=""
+                                        type="button" onclick="mailChack()" style="width: 100%; height: 70%; ">メール送信</button>
+                            </div>
+                        </div>
+                        <div class="mb-4" >
+                            <input type="email" class="form-control" id="mail_ok" name="mail_ok" value="" placeholder="認証番号" style="display:none;">
+                            <span class="user-mail-error-message" style="color: red;"></span>
+                            <input type="hidden" name=mail_ch_value id="mail_ch_value" value="">
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="mb-4" style="text-align: center;">
+                    <button type="button" class="btn btn-primary btn-lg btn-block" onclick="send()" style="width: 41%;">登録</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        //全部入力したか確認
+        var user_id_check = 0;
+        var nikname_check = 0;
+        var user_pass_check = 0;
+        var user_mail_check =0;
+
+        //user_id で入力が発生したとき
+        $("#user_id").on("input", function() {
+            var user_id = $(this).val(); //user_idの値
+            //console.log(user_id);
+            // replaceを使ってidの文字列を表現式を使って、もし英語や数字でない場合は" "をリターンしてもらう。
+            if(user_id != ""){
+                var filteredText = user_id.replace(new RegExp('[^a-zA-Z0-9]', 'g'), '');
+                //けんえつされた文字列を再び入れてあげる
+                $(this).val(filteredText);
+                var lengt = $(this).val().length; //じかず
+                $.ajax({
+                    url: "user_idChk",
+                    type: "Post",
+                    contentType: "application/text; charset=UTF-8",
+                    dataType: "text",
+                    data: { user_id: user_id },
+                    success: function(data) {
+
+                        console.log(data);
+                        if(lengt <=3){
+                            $('.user-id-error-message').text('3文字はできません。').css('color', 'red');
+                            user_id_check  = 0;
+                        }else if(data =="0"){
+                            $('.user-id-error-message').text('使用出来ます。').css('color', 'blue');
+                            user_id_check  = 1;
+                        }else{
+                            $('.user-id-error-message').text('存在しるIDです。').css('color', 'red');
+                            user_id_check  = 0;
+                        }
+
+                    }
+                })
+            }else{
+                $('.user-id-error-message').text('IDを入力してください。').css('color', 'red');
+
+                user_id_check = 0;
+            }
+        });
+
+        $("#nikname").on("input", function() {
+            var nikname = $(this).val(); //niknameの値
+            if(nikname != ""){
+                var filteredText = nikname.replace(new RegExp('[^a-zA-Z0-9가-힣]', 'g'), '');
+                //けんえつされた文字列を再び入れてあげる
+                $(this).val(filteredText);
+                var lengt = $(this).val().length; //じかず
+                $.ajax({
+                    url: "niknameChk",
+                    type: "Post",
+                    contentType: "application/text; charset=UTF-8",
+                    dataType: "text",
+                    data: { nikname: nikname },
+                    success: function(data) {
+                        //console.log("성공");
+                        //console.log(lengt);
+                        console.log(data);
+                        if(lengt <=2){
+                            $('.user-name-error-message').text('2文字はできません。').css('color', 'red');
+                            nikname_check  = 0;
+                        }else if(data =="0"){
+                            $('.user-name-error-message').text('使用できます。').css('color', 'blue');
+                            nikname_check  = 1;
+                        }
+
+                    }
+                })
+            }else{
+                $('.user-name-error-message').text('Nicknameを入力してください。').css('color', 'red');
+                nikname_check = 0;
+            }
+        })
+        $("#user_pass").on("input", function() {
+            var user_pass = $(this).val().length; //user_passの値
+            if(user_pass <= 3 && user_pass !="" ){
+                $('.user-pass-error-message').text('3文字はできません。').css('color', 'red');
+                user_pass_check = 0;
+            }else if(user_pass ==""){
+                $('.user-pass-error-message').text('パスワードを入力してください。').css('color', 'red');
+                user_pass_check = 0;
+            }else{
+                $('.user-pass-error-message').text('使用出来ます。').css('color', 'blue');
+                user_pass_check = 1;
+            }
+        });
+
+        function mailChack() {
+            var email = $('#email').val();
+            var emailRegex = /^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]+$/;
+            if (!emailRegex.test(email)) {
+                alert("正しいメールを入力してください.");
+                $('#email').focus()
+                return;
+            }
+            console.log(email);
+            $.ajax({
+                url :"user_mailck?user_mail="+email,
+                type :"GET",
+                success:function(data){
+                    //console.log("data : "+ data);
+                    var mailChValue = data;
+                    $('#mail_ch_value').val(mailChValue);
+                    $('#mail_ok').show();
+                }
+            });
+        };
+
+        $("#mail_ok").on("input", function() {
+            var mail_ok = $(this).val();
+            var mail_ch_value = $("#mail_ch_value").val();
+            console.log("mail_ch_value : "+ mail_ch_value);
+            if(mail_ok != mail_ch_value){
+                $('.user-mail-error-message').text('違います。').css('color', 'red');
+                user_mail_check = 0;
+            }else{
+                $('.user-mail-error-message').text('正しい認証番号です。').css('color', 'blue');
+                user_mail_check = 1;
+            }
+        });
+
+        function send(){
+            var user_birth = $('#user_birth').val();
+            if(user_id_check==0){
+                alert("IDを確認してください")
+                $('#user_id').focus()
+                return
+            }
+            if(nikname_check == 0){
+                alert("Nicknameを確認してください")
+                $('#nikname').focus()
+                return
+            }
+            if(user_pass_check == 0){
+                alert("パスワードを確認してください")
+                $('#user_pass').focus()
+                return
+            }
+            if(user_mail_check == 0){
+                alert("メールを確認してください")
+                $('#user_mail').focus()
+                return
+            }
+
+            alert("会員登録が完了しました。")
+            join.submit();
+        }
+    </script>
+    <!-- Footer-->
+
+</div>
+</body>
+</html>

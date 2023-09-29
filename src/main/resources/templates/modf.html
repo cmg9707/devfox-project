@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha1/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha1/dist/js/bootstrap.bundle.min.js">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+</head>
+<style>
+  body {
+    background: rgb(051, 051, 255)
+  }
+
+  .form-control:focus {
+    box-shadow: none;
+    border-color: #BA68C8
+  }
+
+  .profile-button {
+    background: rgb(051, 051, 255);
+    box-shadow: none;
+    border: none
+  }
+
+  .profile-button:hover {
+    background: rgb(051, 051, 255);
+  }
+
+  .profile-button:focus {
+    background: rgb(051, 051, 255);
+    box-shadow: none
+  }
+
+  .profile-button:active {
+    background: #682773;
+    box-shadow: none
+  }
+
+  .back:hover {
+    color: #682773;
+    cursor: pointer
+  }
+
+  .labels {
+    font-size: 11px
+  }
+
+  .add-experience:hover {
+    background: #BA68C8;
+    color: #fff;
+    cursor: pointer;
+    border: solid 1px #BA68C8
+  }
+
+</style>
+<body>
+
+
+
+<div class="container rounded bg-white mt-5 mb-5">
+  <div class="row">
+
+    <div class="col-md-3 border-right">
+      <div class="d-flex flex-column align-items-center text-center p-3 py-5"><img id="previewImage" th:if="${base64Image}" th:src="'data:image/jpeg;base64,' + ${base64Image}" alt="이미지"
+                                                                                   style="width: 300px; height: 300px;">
+        <span class="text-black-50"　 th:text="${user.getEmail()}"></span><span> </span></div>
+
+    </div>
+    <div class="col-md-9 border-right">
+      <form action="/modf" method="post" enctype="multipart/form-data" class="w-100">
+      <div class="p-3 py-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="text-right">個人情報修正</h4>
+        </div>
+        <input type="hidden" id="user_id" name="user_id" th:value="${user.getUser_id()}">
+        <div class="row mt-3">
+          <input type="file" id="p_img" name="p_img" accept="image/*" onchange="previewFile(event)">
+          <div class="col-md-12"><label class="labels">ユーザーID</label><input type="text" class="form-control" readonly th:value="${user.getUser_id()}" value=""></div>
+          <div class="col-md-12"><label class="labels">NickName</label><input type="text" class="form-control" readonly th:value="${user.getNikname()}" value=""></div>
+          <div class="col-md-12"><label class="labels">変えたいNickName</label><input type="text" class="form-control" id="nikname" name="nikname" value=""></div>
+          <div class="col-md-12"><label class="labels">現在Password</label><input type="text" class="form-control" readonly value="***********"></div>
+          <div class="col-md-12"><label class="labels">変えたいPassword</label><input type="text" class="form-control" id="user_pass" name="user_pass" value=""></div>
+
+        </div>
+
+        <div class="mt-5 text-center"><button class="btn btn-primary profile-button" type="submit">Save</button></div>
+        <div class="mt-5 text-center"><button class="btn btn-primary profile-button" type="button" onclick="goBack()">帰る</button></div>
+      </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+</div>
+</div>
+
+
+
+
+
+</body>
+
+<script>
+  function goBack() {
+    window.history.back();
+  }
+  function previewFile(event) {
+    var preview = document.getElementById('previewImage');
+    var file = document.querySelector('input[type=file]').files[0];
+    console.log("file=" + file.size)
+    var maxSize = 1048576;
+    if (file.size >= maxSize){
+
+      alert("파일이 너무 큽니다.")
+      event.target.value = null;
+      return false;
+    }
+
+    var reader = new FileReader();
+
+    reader.onloadend = function() {
+      preview.src = reader.result;
+    }
+
+    if (file) {
+      reader.readAsDataURL(file);
+    } else {
+      preview.src = "";
+    }
+  }
+
+</script>
+</html>

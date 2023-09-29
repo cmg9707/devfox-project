@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo1dww.mapper.DMapper">
+
+    <select id="ck" resultType="int">
+        select count(*) from ur
+    </select>
+
+    <select id="User_Chk" resultType="int">
+        select count(*) from ur where ${username} = #{user_value}
+    </select>
+
+    <insert id="User_Insert" >
+        insert into ur(user_id,user_pass,nikname,email)
+        values(#{user_id},#{user_pass},#{nikname},#{email})
+
+    </insert>
+
+    <select id="Login_CK" resultType="int">
+        select count(*) from ur where user_id = #{user_id} and user_pass = #{user_pass}
+
+    </select>
+
+    <select id="Email_Ck" resultType="int">
+        select count(*) from ur where email = #{email}
+
+    </select>
+
+    <update id="Passsw">
+        update ur set user_pass = #{user_pass} where email = #{email}
+    </update>
+
+    <select id="User_Select" resultType="com.example.demo1dww.domain.UserDTO">
+        select * from ur where user_id = #{user_id}
+    </select>
+
+    <select id="Mail_User" resultType="com.example.demo1dww.domain.UserDTO">
+        select * from ur where email = #{email}
+    </select>
+
+    <insert id="Team_Insert" >
+        insert into team(teamno,teamname,leader)
+        values(team_seq.NEXTVAL,#{teamname},#{myemail})
+
+    </insert>
+
+    <select id="Leader_Select" resultType="com.example.demo1dww.domain.UserDTO">
+        select * from ur where email = #{email}
+    </select>
+
+    <insert id="Member_Insert" >
+        insert into mr(teamno,user_id,nikname)
+        values(team_seq.CURRVAL,#{user_id},#{nikname})
+
+    </insert>
+
+    <select id="Seq_Select" resultType="int">
+        SELECT team_seq.CURRVAL FROM DUAL
+    </select>
+
+    <insert id="Member_Insert_no" >
+        insert into mr(teamno,user_id,nikname)
+        values(#{teamno},#{user_id},#{nikname})
+
+    </insert>
+
+    <select id="Team_Select" resultType="com.example.demo1dww.domain.TeamDTO">
+        SELECT t.teamno, MAX(t.teamname) as teamname
+        FROM mr m
+                 JOIN team t ON m.teamno = t.teamno
+        WHERE user_id = #{user_id}
+        GROUP BY t.teamno
+    </select>
+
+    <select id="Member_List" resultType="com.example.demo1dww.domain.TeamDTO">
+        SELECT MAX(teamno) AS teamno,user_id, MAX(nikname) AS nikname, MAX(work) AS work, MAX(start_date) AS start_date, MAX(end_date) AS end_date
+         FROM mr where teamno = #{teamno} GROUP BY user_id
+    </select>
+
+    <select id="Work_Select" resultType="com.example.demo1dww.domain.TeamDTO">
+        select * from mr where teamno = #{teamno}
+    </select>
+
+    <insert id="Work_Insert" >
+        insert into mr(teamno,user_id,nikname,work,start_date,end_date)
+        values(#{teamno},#{user_id},#{nikname},#{work},#{start_date},#{end_date})
+
+    </insert>
+
+    <select id="TeamChat_Select" resultType="com.example.demo1dww.domain.TeamchatDTO">
+        select * from tc where teamno = #{teamno} ORDER by c_date
+    </select>
+
+    <select id="Teamtoday_Work" resultType="com.example.demo1dww.domain.TeamDTO">
+        SELECT *
+        FROM mr
+        WHERE start_date &lt;= #{start_date} AND end_date &gt;= #{start_date} and teamno = #{teamno}
+        ORDER by user_id
+    </select>
+
+    <select id="My_team" resultType="com.example.demo1dww.domain.TeamDTO">
+        select * from team where teamno = #{teamno}
+    </select>
+
+    <insert id="TeamChat_Insert" >
+        insert into tc(teamno,user_id,content,c_date,nikname)
+        values(#{teamno},#{user_id},#{content},TO_DATE(#{c_date} , 'YYYY-MM-DD HH24:MI:SS'),#{nikname})
+    </insert>
+
+    <update id="COMPLETE_Up">
+        update mr set COMPLETE = #{complete} where teamno=#{teamno} and user_id=#{user_id}
+                                             and work=#{work}  and
+            start_date &lt;= TO_DATE(#{start_date} , 'YYYY-MM-DD HH24:MI:SS')
+    </update>
+
+    <delete id="Work_Delect">
+        DELETE FROM mr WHERE teamno = #{teamno} and  user_id = #{user_id} and work = #{work} and start_date = TO_DATE(#{start_date} , 'YYYY-MM-DD HH24:MI:SS')
+    </delete>
+
+    <update id="User_Up" parameterType="map">
+        UPDATE ur
+        <set>
+            <if test='nikname != ""'>
+                nikname = #{nikname},
+            </if>
+            <if test='user_pass != ""'>
+                user_pass = #{user_pass},
+            </if>
+            <if test='p_img != null'>
+                p_img = #{p_img, jdbcType=BLOB},
+            </if>
+
+        </set>
+        WHERE user_id = #{user_id}
+    </update>
+
+    <delete id="Team_del">
+        DELETE FROM mr WHERE teamno = #{teamno} and  user_id = #{user_id}
+    </delete>
+
+
+
+
+
+
+
+</mapper>

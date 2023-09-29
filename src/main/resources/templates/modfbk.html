@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<img id="previewImage" th:if="${base64Image}" th:src="'data:image/jpeg;base64,' + ${base64Image}" alt="이미지"
+     style="width: 300px; height: 300px;">
+<span>이미지</span>
+<form action="/modf" method="post" enctype="multipart/form-data">
+<table border="1">
+  <tr>
+    <th>프로필사진</th>
+    <td>
+      <input type="file" id="p_img" name="p_img" accept="image/*" onchange="previewFile(event)">
+
+    </td>
+  </tr>
+  <tr>
+    <td>아이디</td>
+    <th>
+      <span th:text="${user.getUser_id()}"></span>
+      <input type="hidden" id="user_id" name="user_id" th:value="${user.getUser_id()}">
+    </th>
+  </tr>
+  <tr>
+    <td>닉네임</td>
+    <th>
+      <span th:text="${user.getNikname()}"></span>
+    </th>
+  </tr>
+  <tr>
+    <td>바꿀 닉네임</td>
+    <th>
+      <input type="text" id="nikname" name="nikname">
+    </th>
+  </tr>
+  <tr>
+    <td>현재 비밀번호</td>
+    <th>
+      <span>***********</span>
+    </th>
+  </tr>
+  <tr>
+    <td>바꿀 비밀번호</td>
+    <th>
+      <input type="text" id="user_pass" name="user_pass">
+    </th>
+  </tr>
+  <tr>
+    <td>이메일</td>
+    <th>
+      <span th:text="${user.getEmail()}"></span>
+    </th>
+  </tr>
+
+</table>
+<button type="submit">저장</button>
+</form>
+<button onclick="goBack()">이전 페이지로 돌아가기</button>
+</body>
+
+<script>
+  function goBack() {
+    window.history.back();
+  }
+  function previewFile(event) {
+    var preview = document.getElementById('previewImage');
+    var file = document.querySelector('input[type=file]').files[0];
+    console.log("file=" + file.size)
+    var maxSize = 1048576;
+    if (file.size >= maxSize){
+
+      alert("파일이 너무 큽니다.")
+      event.target.value = null;
+      return false;
+    }
+
+    var reader = new FileReader();
+
+    reader.onloadend = function() {
+      preview.src = reader.result;
+    }
+
+    if (file) {
+      reader.readAsDataURL(file);
+    } else {
+      preview.src = "";
+    }
+  }
+
+</script>
+</html>
